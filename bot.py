@@ -1,5 +1,4 @@
- 
-    
+
 
     #!./.venv/bin/python
 
@@ -12,6 +11,8 @@ import os
 from discord.channel import VoiceChannel       # dumb random number generator
 from discord import FFmpegPCMAudio
 from discord.ext import commands    # Bot class and utils
+import argparse
+
 
 ################################################################################
 ############################### HELPER FUNCTIONS ###############################
@@ -81,19 +82,19 @@ async def on_message(msg):
     # filter out our own messages
     if msg.author == bot.user:
         return
-    
+
     log_msg('message from <%s>: "%s"' % (msg.author, msg.content), 'debug')
 
     # overriding the default on_message handler blocks commands from executing
     # manually call the bot's command processor on given message
     await bot.process_commands(msg)
-    #code.interact(local=dict(globals(), **locals())) 
+    #code.interact(local=dict(globals(), **locals()))
 
 @bot.event
 async def on_voice_state_update(member, before, after):
     voice_state = member.guild.voice_client
     if voice_state is None:
-        return 
+        return
     if len(voice_state.channel.members) == 1:
         await voice_state.disconnect()
 
@@ -126,9 +127,9 @@ async def list(ctx):
         await ctx.send (song_list[key] + '.' + key)
 
 
-    
 
-    
+
+
 
 @bot.command(brief='To make the bot leave the voice channel')
 async def scram(ctx):
@@ -161,7 +162,7 @@ async def resume(ctx):
 @bot.command()
 async def stop(ctx):
     voice = discord.utils.get(bot.voice_clients, guild= ctx.guild)
-    voice.stop();        
+    voice.stop();
 
 
 
@@ -191,10 +192,32 @@ async def roll_error(ctx, error):
 ################################################################################
 
 if __name__ == '__main__':
-    # check that token exists in environment
-    if 'BOT_TOKEN' not in os.environ:
-        log_msg('save your token in the BOT_TOKEN env variable!', 'error')
-        exit(-1)
-
-    # launch bot (blocking operation)
-    bot.run(os.environ['BOT_TOKEN'])
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--token", help="Adaugare token", type=str)
+    args = parser.parse_args()
+    # check if argument had valid input
+    if args.token:
+        bot.run(args.token)
+    else:
+        if 'BOT_TOKEN' not in os.environ:
+            log_msg('save your token in the BOT_TOKEN env variable or use it in the argument parameter!', 'error')
+            exit(-1)
+            #if valid input isn't found either in the env variable BOT_TOKEN or in the args.token variable we output the error
+        else:
+            bot.run(os.environ['BOT_TOKEN'])
+            #if the args.token variable is empty then we use the environment variable BOT_TOKEN
+#
+#Copyright 2021 Andrei Băroiu
+#
+#This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
